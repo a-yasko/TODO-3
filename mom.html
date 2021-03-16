@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ru">
+    <head>
+        <title>TODO</title>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
+        <script defer src="./todo-app.js"></script>
+        <script>
+            const owner = 'Мама';
+            (async () => {
+                let { createTodoApp } = await import('./todo-app/view.js');
+                let {
+                    getTodoListApi,
+                    createTodoItemApi,
+                    switchTodoItemDoneApi,
+                    deleteTodoItemApi
+                } = await import('./todo-app/api.js');
+                let {
+                    getTodoListLocalStorage,
+                    createTodoItemLocalStorage,
+                    switchTodoItemDoneLocalStorage,
+                    deleteTodoItemLocalStorage
+                } = await import('./todo-app/local-storage.js');
+                let { 
+                    setTypeApi,
+                    setTypeLocalStorage,
+                    getTypeStorage
+                } = await import('./todo-app/switch-type.js');
+
+                const btnSwitch = document.querySelector('#btn-switch .btn');
+
+                const typeStorage = getTypeStorage();
+                if (typeStorage) {
+                    if (typeStorage.type === 'api') {
+                        api();
+                        btnSwitch.textContent = 'Перейти на локальное хранилище';
+                    } else {
+                        localStorage()
+                        btnSwitch.textContent = 'Перейти на серверное хранилище';
+                    }
+                } else {
+                    localStorage()
+                    btnSwitch.textContent = 'Перейти на серверное хранилище';
+                }
+
+                async function api() {
+                    const todoItemList = await getTodoListApi(owner);
+                    createTodoApp(document.getElementById('todo-app'), {
+                        title: 'Дела мамы', 
+                        owner, 
+                        todoItemList,
+                        onCreateFormSubmit: createTodoItemApi,
+                        onDoneClick: switchTodoItemDoneApi,
+                        onDeleteClick: deleteTodoItemApi
+                    });
+                }
+
+                function localStorage() {
+                    const todoItemList = getTodoListLocalStorage(owner);
+                    createTodoApp(document.getElementById('todo-app'), {
+                        title: 'Дела мамы', 
+                        owner, 
+                        todoItemList,
+                        onCreateFormSubmit: createTodoItemLocalStorage,
+                        onDoneClick: switchTodoItemDoneLocalStorage,
+                        onDeleteClick: deleteTodoItemLocalStorage
+                    });
+                }
+
+                btnSwitch.addEventListener('click', () => {
+                    if (btnSwitch.textContent === 'Перейти на серверное хранилище') {
+                        document.getElementById('todo-app').textContent = '';
+                        api();
+                        btnSwitch.textContent = 'Перейти на локальное хранилище';
+                        setTypeApi();
+                    } else {
+                        document.getElementById('todo-app').textContent = '';
+                        localStorage();
+                        btnSwitch.textContent = 'Перейти на серверное хранилище';
+                        setTypeLocalStorage();
+                    }
+                });
+            })();
+        </script>
+    </head>
+    <body>
+        <div class="container mb-5">
+            <nav class="nav">
+                <a href="index.html" class="nav-link">Мои дела</a>
+                <a href="mom.html" class="nav-link">Дела мамы</a>
+                <a href="dad.html" class="nav-link">Дела папы</a>
+            </nav>
+        </div>
+        <div id="btn-switch" class="container"><button class="btn btn-primary mb-3">Перейти на серверное хранилище</button></div>
+        <div id="todo-app" class="container"></div>
+    </body>
+</html>
+
+<!-- <script>
+    async function loadTodoItems() {
+        const response = await fetch('http://localhost:3000/api/todos');
+        const data = await response.json();
+        console.log(data);
+    }
+
+    async function createTodoItem() {
+        const response = await fetch('http://localhost:3000/api/todos', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                name: 'Сходить за хлебом',
+                owner: 'Тимофей'
+            })
+        });
+        const data = await response.json();
+        console.log(data);
+    }
+
+    async function getTodoItem() {
+        const response = await fetch('http://localhost:3000/api/todos/1612201996791');
+        const data = await response.json();
+        console.log(data);
+    }
+
+    async function markTodoAsDone() {
+        const response = await fetch('http://localhost:3000/api/todos/1612201996791', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ done: true })
+        });
+        const data = await response.json();
+        console.log(data);
+    }
+
+    async function deleteTodoItem() {
+        const response = await fetch('http://localhost:3000/api/todos/1612201996791', {
+            method: 'DELETE',
+        });
+        if (response.status === 404)
+        console.log('Не удалось удалить дело, так как его не существует');
+        const data = await response.json();
+        console.log(data);
+    }
+</script> -->
