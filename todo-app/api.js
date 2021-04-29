@@ -18,7 +18,7 @@ export async function createTodoItemApi({ name, owner }) {
     return await response.json();
 }
 
-export function switchTodoItemDoneApi({ todoItem }) {
+export async function switchTodoItemDoneApi({ todoItem }) {
     todoItem.done = !todoItem.done;
     fetch(`http://localhost:3000/api/todos/${todoItem.id}`, {
         method: 'PATCH',
@@ -31,7 +31,7 @@ export function switchTodoItemDoneApi({ todoItem }) {
     });
 }
 
-export function deleteTodoItemApi({ element, todoItem }) {
+export async function deleteTodoItemApi({ element, todoItem }) {
     if (!confirm('Вы уверены?')) {
         return;
     }
